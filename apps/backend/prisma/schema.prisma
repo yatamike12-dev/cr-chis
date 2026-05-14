@@ -1,0 +1,111 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  admin
+  national_moh
+  county_officer
+  supervisor
+  bhw
+}
+
+model User {
+  id        String   @id @default(uuid())
+  fullName  String
+  email     String   @unique
+  password  String
+  role      UserRole
+  createdAt DateTime @default(now())
+}
+model Household {
+
+  id                 String   @id @default(uuid())
+
+  householdHead      String
+
+  phoneNumber        String
+
+  village            String
+
+  district           String
+
+  householdSize      Int
+
+  hasPregnantWoman   Boolean
+
+  hasDisabledMember  Boolean
+
+  notes              String?
+
+  createdAt          DateTime @default(now())
+
+  members            HouseholdMember[]
+
+  visits             Visit[]
+
+  alerts             Alert[]
+}
+model HouseholdMember {
+
+  id                  String   @id @default(uuid())
+
+  fullName            String
+
+  gender              String
+
+  age                 Int
+
+  isPregnant          Boolean @default(false)
+
+  hasDisability       Boolean @default(false)
+
+  hasChronicIllness   Boolean @default(false)
+
+  householdId         String
+
+  household           Household @relation(fields: [householdId], references: [id])
+
+  createdAt           DateTime @default(now())
+}
+model Visit {
+
+  id              String   @id @default(uuid())
+
+  visitDate       DateTime @default(now())
+
+  notes           String
+
+  referralMade    Boolean @default(false)
+
+  followUpNeeded  Boolean @default(false)
+
+  householdId     String
+
+  household       Household @relation(fields: [householdId], references: [id])
+
+  createdAt       DateTime @default(now())
+}
+model Alert {
+
+  id            String   @id @default(uuid())
+
+  title         String
+
+  description   String
+
+  severity      String
+
+  resolved      Boolean @default(false)
+
+  householdId   String
+
+  household     Household @relation(fields: [householdId], references: [id])
+
+  createdAt     DateTime @default(now())
+}
